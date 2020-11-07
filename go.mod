@@ -1,4 +1,4 @@
-module github.com/Lunkov/lib-map.git
+module github.com/Lunkov/lib-map
 
 go 1.13
 
