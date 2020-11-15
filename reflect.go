@@ -11,19 +11,19 @@ import (
 
 func ConvertToMap(a interface{}) map[string]interface{} {
   res := make(map[string]interface{})
-	v := reflect.ValueOf(a)
-	if v.Kind() == reflect.Ptr {
-		v = v.Elem()
-	}
+  v := reflect.ValueOf(a)
+  if v.Kind() == reflect.Ptr {
+    v = v.Elem()
+  }
   if v.Kind() == reflect.Struct {
-		for i := 0; i < v.NumField(); i++ {
-			field := strings.Split(v.Type().Field(i).Tag.Get("json"), ",")[0]
+    for i := 0; i < v.NumField(); i++ {
+      field := strings.Split(v.Type().Field(i).Tag.Get("json"), ",")[0]
 
-			if (field != "" && field != "-") || v.Field(i).Kind() == reflect.Struct {
+      if (field != "" && field != "-") || v.Field(i).Kind() == reflect.Struct {
         if v.Field(i).IsValid() {
           if !valueIsZero(v.Field(i)) {
             switch v.Field(i).Kind() {
-	          case reflect.Struct:
+            case reflect.Struct:
                     AppendChildMap(&res, field, ConvertToMap(v.Field(i).Interface()))
                     break;
             case reflect.Slice:
@@ -56,10 +56,10 @@ func ConvertToMap(a interface{}) map[string]interface{} {
             }
           }
         }
-			}
-		}
-	}
-	return res
+      }
+    }
+  }
+  return res
 }
 
 func ConvertFromMap(a interface{}, data *map[string]interface{}) {
@@ -67,7 +67,7 @@ func ConvertFromMap(a interface{}, data *map[string]interface{}) {
     glog.Errorf("ERR: Model() is NULL")
     return
   }
-	v := reflect.ValueOf(a)
+  v := reflect.ValueOf(a)
   if v.IsNil() {
     glog.Errorf("ERR: Model() is NULL")
     return
@@ -76,26 +76,26 @@ func ConvertFromMap(a interface{}, data *map[string]interface{}) {
     glog.Errorf("ERR: Model(%s) not Pointer\n", v.Type())
     return
   }
-	if v.Kind() == reflect.Ptr {
-		v = v.Elem()
-	}
+  if v.Kind() == reflect.Ptr {
+    v = v.Elem()
+  }
   uid0, _ := uuid.Parse("00000000-0000-0000-0000-000000000000")
   typeUUID := reflect.TypeOf(uid0)
   if v.Kind() == reflect.Struct {
-		for i := 0; i < v.NumField(); i++ {
+    for i := 0; i < v.NumField(); i++ {
       field := strings.Split(v.Type().Field(i).Tag.Get("json"), ",")[0]
 
       if field != "" && field != "-" {
         if v.Field(i).IsValid() && v.Field(i).CanSet() {
           switch v.Field(i).Kind() {
-	          case reflect.Struct:
+            case reflect.Struct:
                       childMap := GetChildMap(data, field)
                       ConvertFromMap(v.Field(i).Addr().Interface(), &childMap)
                       break
-	          case reflect.Map:
+            case reflect.Map:
                       childMap := GetChildMap(data, field)
                       sz := GetSizeSlice(&childMap)
-                      
+
                       v.Field(i).Set( reflect.MakeMap( reflect.TypeOf(v.Field(i).Interface()) ) )
                       for j := 0; j < sz; j++ {
                         childItem := GetChildMap(&childMap, strconv.Itoa(j))
@@ -105,7 +105,7 @@ func ConvertFromMap(a interface{}, data *map[string]interface{}) {
             case reflect.Slice:
                       childMap := GetChildMap(data, field)
                       sz := GetSizeSlice(&childMap)
-                      
+ 
                       // Create a slice to begin with
                       typeItem := reflect.TypeOf(v.Field(i).Interface()).Elem()
                       v.Field(i).Set( reflect.MakeSlice(reflect.SliceOf( typeItem ), sz, sz) )
@@ -212,55 +212,56 @@ func ConvertFromMap(a interface{}, data *map[string]interface{}) {
                       break
           }
         }
-			}
-		}
-	}
+      }
+    }
+  }
 }
 
 // Check Value
 func valueIsZero(v reflect.Value) bool {
-	switch v.Kind() {
-	case reflect.Bool:
-		return !v.Bool()
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		return v.Int() == 0
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
-		return v.Uint() == 0
-	case reflect.Float32, reflect.Float64:
-		return math.Float64bits(v.Float()) == 0
-	case reflect.Complex64, reflect.Complex128:
-		c := v.Complex()
-		return math.Float64bits(real(c)) == 0 && math.Float64bits(imag(c)) == 0
-	case reflect.Array:
-		for i := 0; i < v.Len(); i++ {
-			if !valueIsZero(v.Index(i)) {
-				return false
-			}
-		}
-  	return true
-  case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Ptr, reflect.Slice, reflect.UnsafePointer:
-		return v.IsNil()
-	case reflect.String:
-		return v.Len() == 0
-	case reflect.Struct:
-		for i := 0; i < v.NumField(); i++ {
-			if !valueIsZero(v.Field(i)) {
-				return false
-			}
-		}
-		return true
-	default:
-		// This should never happens, but will act as a safeguard for
-		// later, as a default value doesn't makes sense here.
-		panic(&reflect.ValueError{"reflect.Value.IsZero", v.Kind()})
-	}
+  switch v.Kind() {
+    case reflect.Bool:
+      return !v.Bool()
+    case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+      return v.Int() == 0
+    case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
+      return v.Uint() == 0
+    case reflect.Float32, reflect.Float64:
+      return math.Float64bits(v.Float()) == 0
+    case reflect.Complex64, reflect.Complex128:
+      c := v.Complex()
+      return math.Float64bits(real(c)) == 0 && math.Float64bits(imag(c)) == 0
+    case reflect.Array:
+      for i := 0; i < v.Len(); i++ {
+        if !valueIsZero(v.Index(i)) {
+          return false
+        }
+      }
+      return true
+    case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Ptr, reflect.Slice, reflect.UnsafePointer:
+      return v.IsNil()
+    case reflect.String:
+      return v.Len() == 0
+    case reflect.Struct:
+      for i := 0; i < v.NumField(); i++ {
+        if !valueIsZero(v.Field(i)) {
+          return false
+        }
+      }
+      return true
+    default:
+      // This should never happens, but will act as a safeguard for
+      // later, as a default value doesn't makes sense here.
+      panic(&reflect.ValueError{"reflect.Value.IsZero", v.Kind()})
+  }
 }
-  
+
+
 func GetFieldUUID(info interface{}, fieldname string) (uuid.UUID, bool) {
-	v := reflect.ValueOf(info)
-	if v.Kind() == reflect.Ptr {
-		v = v.Elem()
-	}
+  v := reflect.ValueOf(info)
+  if v.Kind() == reflect.Ptr {
+    v = v.Elem()
+  }
   if !v.FieldByName(fieldname).IsValid() ||
      !v.FieldByName(fieldname).CanInterface() {
     return uuid.Nil, false
@@ -274,10 +275,10 @@ func GetFieldUUID(info interface{}, fieldname string) (uuid.UUID, bool) {
 }
 
 func SetFieldUUID(info interface{}, id uuid.UUID, fieldname string) bool {
-	v := reflect.ValueOf(info)
-	if v.Kind() == reflect.Ptr {
-		v = v.Elem()
-	}
+  v := reflect.ValueOf(info)
+  if v.Kind() == reflect.Ptr {
+     v = v.Elem()
+  }
   if !v.FieldByName(fieldname).IsValid() ||
      !v.FieldByName(fieldname).CanInterface() {
     return false
@@ -287,10 +288,10 @@ func SetFieldUUID(info interface{}, id uuid.UUID, fieldname string) bool {
 }
 
 func GetFieldString(info interface{}, fieldname string) (string, bool) {
-	v := reflect.ValueOf(info)
-	if v.Kind() == reflect.Ptr {
-		v = v.Elem()
-	}
+  v := reflect.ValueOf(info)
+  if v.Kind() == reflect.Ptr {
+    v = v.Elem()
+  }
   if !v.FieldByName(fieldname).IsValid() ||
      !v.FieldByName(fieldname).CanInterface() {
     return "", false
