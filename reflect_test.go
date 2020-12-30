@@ -5,6 +5,7 @@ import (
   "testing"
   "github.com/stretchr/testify/assert"
   "github.com/google/uuid"
+  "flag"
 )
 
 type FAddress struct {
@@ -48,10 +49,33 @@ type Organization struct {
   AddressShipping   FAddress         `db:"address_shipping"          json:"address_shipping,omitempty"              gorm:"type:jsonb;"`
 }
 
+////////////////////////////////
+// User
+///////////////////////////////
+
+type User struct {
+  ID            uuid.UUID       `json:"ID"`
+  Login         string          `json:"login"`
+  EMail         string          `json:"email"`
+  DisplayName   string          `json:"display_name"`
+  Avatar        string          `json:"avatar"`
+  Language      string          `json:"lang"`
+  Group         string          `json:"group"`
+  Groups      []string          `json:"groups"`
+  TimeLogin     time.Time       `json:"-"`
+  AuthCode      string          `json:"-"`
+  Disable       bool            `json:"disable"`
+}
+
 /////////////////////////
 // TESTS
 /////////////////////////
 func TestReflect(t *testing.T) {
+	flag.Set("alsologtostderr", "true")
+	flag.Set("log_dir", ".")
+	flag.Set("v", "9")
+	flag.Parse()
+  
   var adr FAddress
   adr.Country = "Russia"
   adr.Index   = "127888"
@@ -84,5 +108,12 @@ func TestReflect(t *testing.T) {
   
   ConvertFromMap(&org2, &o1)
   assert.Equal(t, org1, org2)
+  
+  
+  user1 := User{Login: "user", EMail: "user@mail.user", Group: "user_group", Groups: []string{"mail_user_group", "storage_user_group"}}
+
+  u1_need := map[string]interface{}{"email":"user@mail.user", "group":"user_group", "groups.0":"mail_user_group", "groups.1":"storage_user_group", "login":"user"}
+  u1 := ConvertToMap(user1)
+  assert.Equal(t, u1_need, u1)
 }
 

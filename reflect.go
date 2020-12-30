@@ -18,8 +18,7 @@ func ConvertToMap(a interface{}) map[string]interface{} {
   if v.Kind() == reflect.Struct {
     for i := 0; i < v.NumField(); i++ {
       field := strings.Split(v.Type().Field(i).Tag.Get("json"), ",")[0]
-
-      if (field != "" && field != "-") || v.Field(i).Kind() == reflect.Struct {
+      if v.Field(i).Kind() != reflect.Struct || (field != "" && field != "-" && v.Field(i).Kind() == reflect.Struct) {
         if v.Field(i).IsValid() {
           if !valueIsZero(v.Field(i)) {
             switch v.Field(i).Kind() {
@@ -30,7 +29,11 @@ func ConvertToMap(a interface{}) map[string]interface{} {
                     s := v.Field(i)
                     for j := 0; j < s.Len(); j++ {
                       ei := field + "." + strconv.Itoa(j)
-                      AppendChildMap(&res, ei, ConvertToMap(s.Index(j).Interface()))
+                      if s.Index(j).Kind() == reflect.Struct {
+                        AppendChildMap(&res, ei, ConvertToMap(s.Index(j).Interface()))
+                      } else {
+                        res[ei] = s.Index(j).Interface()
+                      }
                     }
                     break;
             case reflect.Map:
@@ -45,11 +48,14 @@ func ConvertToMap(a interface{}) map[string]interface{} {
                       case bool:
                           res[ei] = t
                       default:
-                          // glog.Warningf("WRN: Map(%s) Value(%s: '%v'): not supported", ei, mi.Type(), mi.Interface())
                           AppendChildMap(&res, ei, ConvertToMap(t))
                       }
                     }
                     break;
+            //case reflect.Int32, reflect.Int64:
+            //case reflect.Float32, reflect.Float64:
+            //case reflect.String:
+            //        break;
             default:
                     res[field] = v.Field(i).Interface()
                     break;
