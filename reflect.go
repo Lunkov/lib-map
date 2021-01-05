@@ -18,7 +18,7 @@ func ConvertToMap(a interface{}) map[string]interface{} {
   if v.Kind() == reflect.Struct {
     for i := 0; i < v.NumField(); i++ {
       field := strings.Split(v.Type().Field(i).Tag.Get("json"), ",")[0]
-      if v.Field(i).Kind() != reflect.Struct || (field != "" && field != "-" && v.Field(i).Kind() == reflect.Struct) {
+      if field != "" && field != "-" {
         if v.Field(i).IsValid() {
           if !valueIsZero(v.Field(i)) {
             switch v.Field(i).Kind() {
