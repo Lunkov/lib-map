@@ -52,7 +52,9 @@ func ConvertToMap(a interface{}) map[string]interface{} {
                       }
                     }
                     break;
-            //case reflect.Int32, reflect.Int64:
+            case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+                    res[field] = strconv.FormatInt(v.Field(i).Int(), 10)
+                    break
             //case reflect.Float32, reflect.Float64:
             //case reflect.String:
             //        break;
