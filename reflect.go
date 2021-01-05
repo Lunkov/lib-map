@@ -57,6 +57,9 @@ func ConvertToMap(a interface{}) map[string]interface{} {
             //case reflect.String:
             //        break;
             default:
+                    if glog.V(9) {
+                      glog.Infof("DBG: ConvertToMap Model(%s:%s) default", v.Field(i).Kind(), field)
+                    }
                     res[field] = v.Field(i).Interface()
                     break;
             }
