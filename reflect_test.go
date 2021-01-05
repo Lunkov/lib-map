@@ -115,5 +115,8 @@ func TestReflect(t *testing.T) {
   u1_need := map[string]interface{}{"email":"user@mail.user", "group":"user_group", "groups.0":"mail_user_group", "groups.1":"storage_user_group", "login":"user"}
   u1 := ConvertToMap(user1)
   assert.Equal(t, u1_need, u1)
+  
+  assert.Equal(t, true, FieldExists(user1, "EMail"))
+  assert.Equal(t, false, FieldExists(user1, "e-mail"))
 }
 

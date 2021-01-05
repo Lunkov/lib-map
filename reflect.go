@@ -310,6 +310,18 @@ func GetFieldString(info interface{}, fieldname string) (string, bool) {
   return "", false
 }
 
+func FieldExists(info interface{}, fieldname string) bool {
+  v := reflect.ValueOf(info)
+  if v.Kind() == reflect.Ptr {
+    v = v.Elem()
+  }
+  if !v.FieldByName(fieldname).IsValid() ||
+     !v.FieldByName(fieldname).CanInterface() {
+    return false
+  }
+  return true
+}
+
 func InitializeStruct(t reflect.Type, v reflect.Value) {
   for i := 0; i < v.NumField(); i++ {
     f := v.Field(i)
