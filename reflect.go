@@ -32,7 +32,7 @@ func ConvertToMap(a interface{}) map[string]interface{} {
                       if s.Index(j).Kind() == reflect.Struct {
                         AppendChildMap(&res, ei, ConvertToMap(s.Index(j).Interface()))
                       } else {
-                        res[ei] = s.Index(j).Interface()
+                        res[strings.ToLower(ei)] = s.Index(j).Interface()
                       }
                     }
                     break;
@@ -42,18 +42,18 @@ func ConvertToMap(a interface{}) map[string]interface{} {
                       mi := v.Field(i).MapIndex(e)
                       switch t := mi.Interface().(type) {
                       case int:
-                          res[ei] = t
+                          res[strings.ToLower(ei)] = t
                       case string:
-                          res[ei] = t
+                          res[strings.ToLower(ei)] = t
                       case bool:
-                          res[ei] = t
+                          res[strings.ToLower(ei)] = t
                       default:
                           AppendChildMap(&res, ei, ConvertToMap(t))
                       }
                     }
                     break;
             case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-                    res[field] = strconv.FormatInt(v.Field(i).Int(), 10)
+                    res[strings.ToLower(field)] = strconv.FormatInt(v.Field(i).Int(), 10)
                     break
             //case reflect.Float32, reflect.Float64:
             //case reflect.String:
@@ -62,7 +62,7 @@ func ConvertToMap(a interface{}) map[string]interface{} {
                     if glog.V(9) {
                       glog.Infof("DBG: ConvertToMap Model(%s:%s) default", v.Field(i).Kind(), field)
                     }
-                    res[field] = v.Field(i).Interface()
+                    res[strings.ToLower(field)] = v.Field(i).Interface()
                     break;
             }
           }

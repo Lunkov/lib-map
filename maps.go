@@ -10,13 +10,13 @@ import (
 
 func AppendChildMap(parentMap *map[string]interface{}, child string, childMap map[string]interface{}) {
   for k, v := range childMap {
-    (*parentMap)[child + "." + k] = v
+    (*parentMap)[strings.ToLower(child + "." + k)] = v
   }
 }
 
 func UnionMaps(srcMap *map[string]interface{}, newMap *map[string]interface{}) {
   for k, v := range (*newMap) {
-    (*srcMap)[k] = v
+    (*srcMap)[strings.ToLower(k)] = v
   }
 }
 
@@ -28,7 +28,7 @@ func GetChildMap(parentMap *map[string]interface{}, child string) map[string]int
     if zsChild < len(k) {
       if seach == k[:zsChild] {
         k2 := k[zsChild:]
-        res[k2] = v
+        res[strings.ToLower(k2)] = v
       }
     }
   }
@@ -53,7 +53,7 @@ func GetSizeSlice(parentMap *map[string]interface{}) int {
 }
 
 func GetMapFieldUUID(data *map[string]interface{}, fieldname string) (uuid.UUID, bool) {
-  ids, ok := (*data)[fieldname]
+  ids, ok := (*data)[strings.ToLower(fieldname)]
   if !ok {
     return uuid.Nil, false
   }
