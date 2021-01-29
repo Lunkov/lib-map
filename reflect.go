@@ -28,7 +28,7 @@ func ConvertToMap(a interface{}) map[string]interface{} {
             case reflect.Slice:
                     s := v.Field(i)
                     for j := 0; j < s.Len(); j++ {
-                      ei := field + "." + strconv.Itoa(j)
+                      ei := field + ARRAY_SEPARATOR + strconv.Itoa(j)
                       if s.Index(j).Kind() == reflect.Struct {
                         AppendChildMap(&res, ei, ConvertToMap(s.Index(j).Interface()))
                       } else {
@@ -38,7 +38,7 @@ func ConvertToMap(a interface{}) map[string]interface{} {
                     break;
             case reflect.Map:
                     for _, e := range v.Field(i).MapKeys() {
-                      ei := field + "." + e.String()
+                      ei := field + MAP_SEPARATOR + e.String()
                       mi := v.Field(i).MapIndex(e)
                       switch t := mi.Interface().(type) {
                       case int:
@@ -100,28 +100,34 @@ func ConvertFromMap(a interface{}, data *map[string]interface{}) {
         if v.Field(i).IsValid() && v.Field(i).CanSet() {
           switch v.Field(i).Kind() {
             case reflect.Struct:
-                      childMap := GetChildMap(data, field)
+                      childMap := GetChildSubmap(data, field, MAP_SEPARATOR)
                       ConvertFromMap(v.Field(i).Addr().Interface(), &childMap)
                       break
             case reflect.Map:
-                      childMap := GetChildMap(data, field)
-                      sz := GetSizeSlice(&childMap)
+                      childMap := GetChildSubmap(data, field, MAP_SEPARATOR)
+                      sz := GetSizeSubmap(&childMap, MAP_SEPARATOR)
+                      if glog.V(9) {
+                        glog.Infof("DBG: ConvertFromMap Model(%s:%s) sz=%d", v.Field(i).Kind(), field, sz)
+                      }
 
                       v.Field(i).Set( reflect.MakeMap( reflect.TypeOf(v.Field(i).Interface()) ) )
                       for j := 0; j < sz; j++ {
-                        childItem := GetChildMap(&childMap, strconv.Itoa(j))
+                        childItem := GetChildSubmap(&childMap, strconv.Itoa(j), MAP_SEPARATOR)
                         ConvertFromMap(v.Field(i).Index(j).Addr().Interface(), &childItem)
                       }
                       break
             case reflect.Slice:
-                      childMap := GetChildMap(data, field)
-                      sz := GetSizeSlice(&childMap)
+                      childMap := GetChildSubmap(data, field, ARRAY_SEPARATOR)
+                      sz := GetSizeSubmap(&childMap, MAP_SEPARATOR)
+                      if glog.V(9) {
+                        glog.Infof("DBG: ConvertFromMap Model(%s:%s) sz=%d", v.Field(i).Kind(), field, sz)
+                      }
  
                       // Create a slice to begin with
                       typeItem := reflect.TypeOf(v.Field(i).Interface()).Elem()
                       v.Field(i).Set( reflect.MakeSlice(reflect.SliceOf( typeItem ), sz, sz) )
                       for j := 0; j < sz; j++ {
-                        childItem := GetChildMap(&childMap, strconv.Itoa(j))
+                        childItem := GetChildSubmap(&childMap, strconv.Itoa(j), MAP_SEPARATOR)
                         ConvertFromMap(v.Field(i).Index(j).Addr().Interface(), &childItem)
                       }
                       break

@@ -7,10 +7,12 @@ import (
   "github.com/golang/glog"
 )
 
+const MAP_SEPARATOR   = "."
+const ARRAY_SEPARATOR = ":"
 
 func AppendChildMap(parentMap *map[string]interface{}, child string, childMap map[string]interface{}) {
   for k, v := range childMap {
-    (*parentMap)[strings.ToLower(child + "." + k)] = v
+    (*parentMap)[strings.ToLower(child + MAP_SEPARATOR + k)] = v
   }
 }
 
@@ -20,10 +22,10 @@ func UnionMaps(srcMap *map[string]interface{}, newMap *map[string]interface{}) {
   }
 }
 
-func GetChildMap(parentMap *map[string]interface{}, child string) map[string]interface{} {
+func GetChildSubmap(parentMap *map[string]interface{}, child string, separator string) map[string]interface{} {
   res := make(map[string]interface{})
   zsChild := len(child) + 1
-  seach := child + "."
+  seach := child + separator
   for k, v := range (*parentMap) {
     if zsChild < len(k) {
       if seach == k[:zsChild] {
@@ -35,10 +37,10 @@ func GetChildMap(parentMap *map[string]interface{}, child string) map[string]int
   return res
 }
 
-func GetSizeSlice(parentMap *map[string]interface{}) int {
+func GetSizeSubmap(parentMap *map[string]interface{}, separator string) int {
   res := 0
   for k, _ := range (*parentMap) {
-    i := strings.Index(k,".")
+    i := strings.Index(k, separator)
     if i >= 0 {
       seach := k[0:i]
       t, err := strconv.Atoi(seach)

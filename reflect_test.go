@@ -100,7 +100,7 @@ func TestReflect(t *testing.T) {
   org1.Bank[1].BIK     = "21111111"
   org1.Bank[1].Account = "2111111134583459834573279"
   
-  o1_need := map[string]interface{}{"id": uid1, "address_legal.city":"Moscow", "address_legal.country":"Russia", "address_legal.index":"127888", "bank.0.account":"111111134583459834573279", "bank.0.bik":"1111111", "bank.1.account":"2111111134583459834573279", "bank.1.bik":"21111111", "name":"OOO `Org`"}
+  o1_need := map[string]interface{}{"id": uid1, "address_legal.city":"Moscow", "address_legal.country":"Russia", "address_legal.index":"127888", "bank:0.account":"111111134583459834573279", "bank:0.bik":"1111111", "bank:1.account":"2111111134583459834573279", "bank:1.bik":"21111111", "name":"OOO `Org`"}
   o1 := ConvertToMap(org1)
   assert.Equal(t, o1_need, o1)
 
@@ -112,7 +112,7 @@ func TestReflect(t *testing.T) {
   
   user1 := User{Login: "user", EMail: "user@mail.user", Group: "user_group", Groups: []string{"mail_user_group", "storage_user_group"}}
 
-  u1_need := map[string]interface{}{"email":"user@mail.user", "group":"user_group", "groups.0":"mail_user_group", "groups.1":"storage_user_group", "login":"user"}
+  u1_need := map[string]interface{}{"email":"user@mail.user", "group":"user_group", "groups:0":"mail_user_group", "groups:1":"storage_user_group", "login":"user"}
   u1 := ConvertToMap(user1)
   assert.Equal(t, u1_need, u1)
   
